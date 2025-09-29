@@ -15,7 +15,7 @@ jobs:
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.USERNAME }}
-          password: ${{ secrets.PASSWORD }}
+          password: ${{ secrets.newtoken2 }}
 
       - name: Build and push
         uses: docker/build-push-action@v5
