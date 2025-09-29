@@ -14,11 +14,12 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.USERNAME }}
-          password: ${{ secrets.newtoken2 }}
+          username: ${{ secrets.USERNAME }}       # <- must exist in Settings ▸ Secrets ▸ Actions
+          password: ${{ secrets.newtoken2 }}      # <- must exist and be marked as secret
 
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
           push: true
-          tags: your-dockerhub-username/videoinsights:latest, your-dockerhub-username/videoinsights:${{ github.run_number }}
+          context: .                              # <- add this if Dockerfile is in repo root
+          tags: rupsaojha247/dimage1:latest, rupsaojha247/dimage1:${{ github.run_number }}
