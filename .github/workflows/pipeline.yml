@@ -1,0 +1,47 @@
+trigger:
+  branches:
+    include:
+      - main
+      - master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  DOCKER_REPO: 'your-dockerhub-username'
+  IMAGE_NAME: 'videoinsights'
+
+stages:
+- stage: build_and_push
+  displayName: Build & Push Docker image
+  jobs:
+  - job: docker
+    displayName: Build and push to Docker Hub
+    steps:
+    - checkout: self
+      clean: true
+
+    # ---- Docker login using pipeline variables (mark password as secret) ----
+    - script: |
+        echo "Logging in to Docker Hub"
+        echo "$(DOCKERHUB_PASSWORD)" | docker login -u "$(DOCKERHUB_USERNAME)" --password-stdin
+      displayName: Docker Hub login
+      env:
+        DOCKERHUB_USERNAME: $(DOCKERHUB_USERNAME)
+        DOCKERHUB_PASSWORD: $(DOCKERHUB_PASSWORD)
+
+    # ---- Build image with two tags: build number and latest ----
+    - script: |
+        IMAGE_TAG="$(Build.BuildNumber)"
+        FULL_NAME="$(DOCKER_REPO)/$(IMAGE_NAME)"
+        echo "Building ${FULL_NAME}:${IMAGE_TAG}"
+        docker build -t "${FULL_NAME}:${IMAGE_TAG}" -t "${FULL_NAME}:latest" .
+      displayName: Build image
+
+    # ---- Push both tags to Docker Hub ----
+    - script: |
+        FULL_NAME="$(DOCKER_REPO)/$(IMAGE_NAME)"
+        echo "Pushing ${FULL_NAME}:$(Build.BuildNumber) and :latest"
+        docker push "${FULL_NAME}:$(Build.BuildNumber)"
+        docker push "${FULL_NAME}:latest"
+      displayName: Push image
