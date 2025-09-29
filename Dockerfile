@@ -1,2 +1,4 @@
-FEOM alpine:latest
-CMD["echo","Hello"]
+FROM alpine:latest
+
+
+CMD ["echo","Hello"]
